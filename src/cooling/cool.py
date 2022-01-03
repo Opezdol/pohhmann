@@ -7,6 +7,8 @@ import cadquery as cq
 # fixes 
 # lower  - center 5 mm offset
 # 190 mm from lower, 60 mm offset
+
+## PARAMS
 width = 201
 length = 53
 offset = 12
@@ -18,30 +20,8 @@ fixPnts = (
         (-(length/2+fixOffset), width/2-fixOffsetY),
         ( length/2+5, width/2-fixOffsetY),
         )
-
-tm = (
-        # base box with thick offset of offset
-        cq.Workplane()
-        .box(length+offset,width+offset,offset)
-        # estetic fillets to box
-        .edges('|Z').fillet(fillet)
-        .faces('<Z').edges().fillet(fillet)
-        # top face for sketch
-        #_______
-        # SKETCH
-        .faces('>Z')
-        .sketch()
-        .rect(width+offset,length+offset,tag='base')
-        .rect(width,length, mode='s',tag='base1')
-        .select('base','base1')
-        .vertices()
-        .fillet(fillet)
-        .finalize()
-        #______SKETCH_END______
-
-        .extrude(50)
-        )
-
+#############
+# Sketch Zone!
 test_hull = (
         cq.Sketch()
         # Define main geometry
@@ -59,11 +39,28 @@ test_hull = (
         .offset(-offset/2,mode='s',tag='innerBase')
         .select('innerBase').vertices().fillet(fillet)
         .push(fixPnts).circle(1,mode='s')
+        )
 
+tubeCut = (
+        cq.Sketch()
+        .rect(4*2,45) # depth of cut *2
+        .vertices(">Y")
+        .chamfer(2) #.segment((0,0),(-21,0))
+        #.arc((-21,0),(0,5),(21,0))
         )
-result = (
-        cq.Workplane()
+
+## Sketcj zone End
+####################
+result = ( cq.Workplane()
         .placeSketch(test_hull)
-        .extrude(2)
+        .extrude(10)
+        .faces('>Y')
+        .workplane()
+        .placeSketch(tubeCut)
+        .cutBlind(-10)
         )
-show_object(result)
+# test tubeCut
+#result = result.faces("<Y").workplane().rect(80,80).cutBlind(-190) 
+
+##############
+
