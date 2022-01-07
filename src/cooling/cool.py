@@ -84,4 +84,7 @@ mid_result = (
         .placeSketch(tubeCut)
         .cutBlind(-30)
         )
+
+
+
 show_object(mid_result)
