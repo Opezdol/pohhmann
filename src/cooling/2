@@ -1,11 +1,11 @@
 import cadquery as cq
-from math import sin, pi
+import csv
 import numpy as np
 plateRadius = 15
 plateCenterHole = 4
 pinRadius = 3.5/2
 pinInter = 18
-SCALE= 100 # scale profile dimentions
+SCALE= 150 # scale profile dimentions
 
 # input data from csv file of wing profile 
 data = np.genfromtxt('data/s7075-il.csv',delimiter=',')
@@ -31,7 +31,8 @@ prof = (
         cq.Sketch()
         .spline(pts2)
         .close()
-        .assemble()
+        .finalize()
+        #.assemble()
         )
 # Sketch Zone end
 
@@ -62,43 +63,19 @@ res = (
         )
         """
 ###########
-def makeIt(pts):
-
-    wp = cq.Workplane("XY").polyline(pts).close().workplane()
-    result = None
-    for i in range(0,20):
-        wp2 = (
-                wp.transformed(offset=cq.Vector(0, -20, 5),
-                    rotate=cq.Vector(1, 0, 0))
-                .polyline(pts).close()
-                .workplane()
+res2 = (
+        cq.Workplane()
+        .placeSketch(prof)
+        )
+def makeIt(workpl):
+    for _ in range(10):
+        workpl = (
+                workpl
+                .workplane(offset=10)
+                .placeSketch(prof)
+                .loft(combine=True)
                 )
-        if result == None:
-            result = wp2.loft(combine=True)
-        else:
-            nextpart = wp2.loft(combine=True)
-            result = result.union(nextpart)
-        wp = wp.transformed(offset=cq.Vector(0, -5, 5),
-            rotate=cq.Vector(18, 0, 0)).polyline(pts).close().workplane()
-
-    show_object(result, options=dict(alpha=0.8,color='blue'))
-
-def makeSweep(pts):
-    path = (
-            cq.Workplane()
-
-            .parametricCurve(lambda t:(100*sin(t*pi/180),t,0),
-                                start=0, stop = 10, N = 1000)
-            )
-    debug(path)
-    res = (
-            cq.Workplane('YZ')
-            .polyline(pts)
-            .close()
-            .sweep(path)
-            )
-    show_object(res, options=dict(aplha=0.7, color='magenta'))
-
-
-makeSweep(pts2)
-
+    return workpl
+res2 = makeIt(res2)
+debug (plate)
+show_object(res2)
