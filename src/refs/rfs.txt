@@ -1,0 +1,5 @@
+https://be189.github.io/lessons/14/asynchronous_streaming.html#Why-do-we-need-asynchrony?
+
+https://www.hubs.com/knowledge-base/common-design-features/
+
+https://lcamtuf.coredump.cx/gcnc/
